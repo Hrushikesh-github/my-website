@@ -1,0 +1,154 @@
+here
+Filename: memory_profiling_test.py
+
+Line #    Mem usage    Increment  Occurrences   Line Contents
+=============================================================
+    64    256.1 MiB    256.1 MiB           1   @profile
+    65                                         def adv_fun():
+    66                                             # Convert the uploaded image to an PIL.Image.Image
+    67    256.1 MiB      0.0 MiB           1       filename = '/Users/hrushi/Desktop/dove.jpg'
+    68    264.5 MiB      8.4 MiB           1       with Image.open(filename) as input_image:
+    69    271.5 MiB      7.0 MiB           1          input_image.load()
+    70    271.5 MiB      0.0 MiB           1       input_image = input_image.convert('RGB')
+    71                                             # Let's have a standard image size to avoid resizing with html
+    72    271.5 MiB      0.0 MiB           1       input_image = input_image.resize((512, 512))
+    73    271.6 MiB      0.1 MiB           1       input_image.save('delete_later.png')
+    74                                         
+    75                                             # Perform inference using the get_inference_result function
+    76    271.6 MiB      0.0 MiB           1       if input_image.mode == 'RGBA':
+    77                                                 input_image = input_image.convert('RGB')
+    78                                         
+    79    271.6 MiB      0.0 MiB           1       model_path = 'model/squeezenet_model.pth'
+    80                                             # model = models.squeezenet1_1(pretrained=False)
+    81    272.0 MiB      0.4 MiB           1       model = models.squeezenet1_1(weights=None)
+    82    276.6 MiB      4.6 MiB           1       state_dict = torch.load(model_path)
+    83    276.6 MiB      0.0 MiB           1       model.load_state_dict(state_dict)
+    84    276.6 MiB      0.0 MiB           1       model.eval()
+    85                                         
+    86    276.7 MiB      0.0 MiB           2       preprocess = transforms.Compose([
+    87    276.6 MiB      0.0 MiB           1           transforms.Resize(256),
+    88    276.7 MiB      0.0 MiB           1           transforms.CenterCrop(224),
+    89    276.7 MiB      0.0 MiB           1           transforms.ToTensor(),
+    90    276.7 MiB      0.0 MiB           1           transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+    91                                             ])
+    92    279.0 MiB      2.3 MiB           1       input_tensor = preprocess(input_image)
+    93                                             # create a mini-batch as expected by the model
+    94    279.0 MiB      0.0 MiB           1       input_batch = input_tensor.unsqueeze(0)  
+    95    279.0 MiB      0.0 MiB           1       input_batch.requires_grad = True
+    96    279.0 MiB      0.0 MiB           1       with torch.enable_grad():
+    97    295.4 MiB     16.4 MiB           1           output = model(input_batch)
+    98                                         
+    99                                             # Tensor of shape 1000, with confidence scores over Imagenet's 1000 classes
+   100    295.5 MiB      0.2 MiB           1       probabilities = torch.nn.functional.softmax(output[0], dim=0) 
+   101    295.5 MiB      0.0 MiB           1       with open("imagenet_classes.txt", "r") as f:
+   102    295.7 MiB      0.1 MiB        1003           categories = [s.strip() for s in f.readlines()]
+   103                                         
+   104    295.8 MiB      0.1 MiB           1       top5_prob, top5_catid = torch.topk(probabilities, 5)
+   105    295.8 MiB      0.0 MiB           1       result = []
+   106    295.8 MiB      0.0 MiB           6       for i in range(top5_prob.size(0)):
+   107    295.8 MiB      0.0 MiB           5           result.append((i+1, categories[top5_catid[i]], round(top5_prob[i].item() * 100, 2)))
+   108                                         
+   109                                             # Get the predicted class
+   110    296.0 MiB      0.1 MiB           1       _, predicted_class = torch.max(output, 1)
+   111                                         
+   112    296.2 MiB      0.2 MiB           1       loss = torch.nn.functional.nll_loss(output, predicted_class)
+   113    296.2 MiB      0.0 MiB           1       model.zero_grad()
+   114    316.9 MiB     20.7 MiB           1       loss.backward()
+   115                                         
+   116                                             # Collect the gradients of the input image
+   117    316.9 MiB      0.0 MiB           1       data_grad = input_batch.grad.data
+   118                                         
+   119                                             # Using a very high epsilon value so change is evident
+   120    316.9 MiB      0.0 MiB           1       epsilon=24/255
+   121                                             # Create the adversarial image by perturbing the input image
+   122    317.0 MiB      0.1 MiB           1       perturbation = epsilon * torch.sign(data_grad)
+   123    317.0 MiB      0.0 MiB           1       perturbed_image = input_batch + perturbation
+   124                                         
+   125                                             # Clamp the pixel values to the valid range [0, 1]
+   126    317.1 MiB      0.1 MiB           1       perturbed_image = torch.clamp(perturbed_image, 0, 1)
+   127                                         
+   128    317.1 MiB      0.0 MiB           1       with torch.no_grad():
+   129    317.2 MiB      0.1 MiB           1           adversarial_output = model(perturbed_image)
+   130                                         
+   131    317.2 MiB      0.0 MiB           1       adversarial_probabilities = torch.nn.functional.softmax(adversarial_output[0], dim=0)
+   132                                         
+   133    317.2 MiB      0.0 MiB           1       top5_prob, top5_catid = torch.topk(adversarial_probabilities, 5)
+   134    317.2 MiB      0.0 MiB           1       original_result = []
+   135    317.2 MiB      0.0 MiB           6       for i in range(top5_prob.size(0)):
+   136    317.2 MiB      0.0 MiB           5           original_result.append((i+1, categories[top5_catid[i]], round(top5_prob[i].item() * 100, 2)))
+   137                                             
+   138                                             # Get the class labels from the original result
+   139    317.2 MiB      0.0 MiB           8       original_classes = [item[1] for item in original_result]
+   140                                         
+   141                                             # Find the indices of original classes in the adversarial probabilities
+   142    317.2 MiB      0.0 MiB           8       original_indices = [categories.index(cls) for cls in original_classes]
+   143                                         
+   144                                             # Extract the probabilities of original classes from the adversarial probabilities
+   145    317.2 MiB      0.0 MiB           1       adversarial_top5_class_probabilities = []
+   146    317.2 MiB      0.0 MiB           6       for i, index in enumerate(original_indices):
+   147    317.2 MiB      0.0 MiB           5           probability = adversarial_probabilities[index]
+   148    317.2 MiB      0.0 MiB           5           class_name = original_result[i][1]
+   149    317.2 MiB      0.0 MiB           5           adversarial_top5_class_probabilities.append((i + 1, class_name, round(probability.item() * 100, 1)))
+   150                                         
+   151                                             
+   152    317.3 MiB      0.1 MiB           1       perturbation = perturbation.squeeze().permute(1, 2, 0).detach().numpy()
+   153    318.1 MiB      0.8 MiB           1       multipled_perturbation = Image.fromarray((perturbation * 255 * 50).astype(np.uint8), mode='RGB')
+   154    319.1 MiB      1.0 MiB           1       multipled_perturbation = multipled_perturbation.resize((512, 512))
+   155    319.1 MiB      0.0 MiB           1       normal_perturbation = Image.fromarray((perturbation * 255).astype(np.uint8), mode='RGB')
+   156                                         
+   157    320.1 MiB      1.0 MiB           1       resized_perturbation = normal_perturbation.resize(input_image.size)
+   158                                         
+   159                                             # We can directly add using Pillow
+   160                                             
+   161                                             #resized_perturbation_rgb = resized_perturbation.convert("RGB")
+   162                                             #input_image_rgb = input_image.convert("RGB")
+   163                                             #adversarial_image = Image.blend(resized_perturbation_rgb, input_image_rgb, alpha=0.5)
+   164                                         
+   165                                             # OR WE CAN CONVERT TO NUMPY TO GET BETTER ADDITION
+   166                                             # Convert images to NumPy arrays and perform addition of the two arrays
+   167    323.9 MiB      3.8 MiB           1       adversarial_image_array = np.array(resized_perturbation).astype(np.uint16) + np.array(input_image).astype(np.uint16)
+   168                                             # Ensure the resulting array is within the valid range [0, 255]
+   169    323.9 MiB      0.0 MiB           1       adversarial_image_array = np.clip(adversarial_image_array, 0, 255)
+   170                                             # Convert the adversarial_image_array  back to PIL.Image.Image
+   171    324.9 MiB      1.0 MiB           1       adversarial_image = Image.fromarray(adversarial_image_array.astype(np.uint8))
+   172                                         
+   173                                             # Create a new blank image with the stacked dimensions
+   174    324.9 MiB      0.0 MiB           1       stacked_width = input_image.width + adversarial_image.width + 1  # Add 1 pixel for the boundary
+   175    324.9 MiB      0.0 MiB           1       stacked_height = max(input_image.height, adversarial_image.height)
+   176    324.9 MiB      0.0 MiB           1       stacked_image = Image.new('RGB', (stacked_width, stacked_height))
+   177                                         
+   178                                             # Paste the input_image on the left and adversarial_image on the right
+   179    324.9 MiB      0.0 MiB           1       stacked_image.paste(input_image, (0, 0))
+   180    324.9 MiB      0.0 MiB           1       stacked_image.paste(adversarial_image, (input_image.width + 1, 0))  # Add 1 pixel offset for the boundary
+   181                                         
+   182                                             # Add a boundary line
+   183    324.9 MiB      0.0 MiB           1       boundary_color = (255, 0, 0)  # Red color for the boundary line
+   184    324.9 MiB      0.0 MiB           1       boundary_width = 2  # Width of the boundary line
+   185    324.9 MiB      0.0 MiB           1       line_coordinates = [(input_image.width, 0), (input_image.width, stacked_height - 1)]  # Coordinates for the line
+   186    324.9 MiB      0.0 MiB           1       line_draw = ImageDraw.Draw(stacked_image)
+   187    324.9 MiB      0.0 MiB           1       line_draw.line(line_coordinates, fill=boundary_color, width=boundary_width)
+   188                                         
+   189                                             # Add labels to the images
+   190    325.1 MiB      0.2 MiB           1       label_font = ImageFont.truetype("Arial.ttf", size=24)  # Set the font and size for the labels
+   191    325.1 MiB      0.0 MiB           1       label_draw = ImageDraw.Draw(stacked_image)
+   192                                         
+   193                                             # Add label for the original image
+   194    325.2 MiB      0.1 MiB           1       label_draw.text((10, 10), "Original", fill=(112, 238, 27, 1), font=label_font)
+   195                                         
+   196                                             # Add label for the adversarial image
+   197    325.2 MiB      0.0 MiB           1       label_draw.text((input_image.width + 10, 10), "Adversarial", fill="red", font=label_font)
+   198                                         
+   199                                             # Save the stacked image
+   200    325.2 MiB      0.0 MiB           1       stacked_save_path = f'del1.png'
+   201    325.2 MiB      0.0 MiB           1       stacked_image.save(stacked_save_path)
+   202                                         
+   203                                             # Save the perturbation scaled by 50
+   204    325.2 MiB      0.0 MiB           1       scaled_save_path = f'del2.png'
+   205    325.3 MiB      0.0 MiB           1       multipled_perturbation.save(scaled_save_path)
+   206                                         
+   207                                             # Save the perturbed input image
+   208    325.3 MiB      0.0 MiB           1       adversarial_image_path = f'del3.png'
+   209    325.3 MiB      0.0 MiB           1       adversarial_image.save(adversarial_image_path)    
+
+
+None

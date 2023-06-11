@@ -1,0 +1,52 @@
+here
+Filename: memory_profiling_test.py
+
+Line #    Mem usage    Increment  Occurrences   Line Contents
+=============================================================
+    19    259.5 MiB    259.5 MiB           1   @profile
+    20                                         def my_fun():
+    21                                             # Convert the uploaded image to an PIL.Image.Image
+    22    259.5 MiB      0.0 MiB           1       filename = '/Users/hrushi/Desktop/dove.jpg'
+    23    267.8 MiB      8.3 MiB           1       with Image.open(filename) as input_image:
+    24    274.7 MiB      6.9 MiB           1          input_image.load()
+    25    274.7 MiB      0.0 MiB           1       input_image = input_image.convert('RGB')
+    26                                             # Let's have a standard image size to avoid resizing with html
+    27    274.7 MiB      0.0 MiB           1       input_image = input_image.resize((512, 512))
+    28    274.8 MiB      0.1 MiB           1       input_image.save('delete_later.png')
+    29                                         
+    30                                             # Perform inference using the get_inference_result function
+    31    274.8 MiB      0.0 MiB           1       if input_image.mode == 'RGBA':
+    32                                                 input_image = input_image.convert('RGB')
+    33                                         
+    34    274.8 MiB      0.0 MiB           1       model_path = 'model/squeezenet_model.pth'
+    35                                             # model = models.squeezenet1_1(pretrained=False)
+    36    275.3 MiB      0.5 MiB           1       model = models.squeezenet1_1(weights=None)
+    37    278.1 MiB      2.7 MiB           1       state_dict = torch.load(model_path)
+    38    278.1 MiB      0.0 MiB           1       model.load_state_dict(state_dict)
+    39    278.1 MiB      0.0 MiB           1       model.eval()
+    40                                         
+    41    278.1 MiB      0.0 MiB           2       preprocess = transforms.Compose([
+    42    278.1 MiB      0.0 MiB           1           transforms.Resize(256),
+    43    278.1 MiB      0.0 MiB           1           transforms.CenterCrop(224),
+    44    278.1 MiB      0.0 MiB           1           transforms.ToTensor(),
+    45    278.1 MiB      0.0 MiB           1           transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+    46                                             ])
+    47    280.8 MiB      2.7 MiB           1       input_tensor = preprocess(input_image)
+    48                                             # create a mini-batch as expected by the model
+    49    280.8 MiB      0.0 MiB           1       input_batch = input_tensor.unsqueeze(0)  
+    50    280.8 MiB      0.0 MiB           1       with torch.no_grad():
+    51    292.4 MiB     11.6 MiB           1            output = model(input_batch)
+    52                                         
+    53                                             # Tensor of shape 1000, with confidence scores over Imagenet's 1000 classes
+    54    292.6 MiB      0.2 MiB           1       probabilities = torch.nn.functional.softmax(output[0], dim=0) 
+    55    292.6 MiB      0.0 MiB           1       with open("imagenet_classes.txt", "r") as f:
+    56    292.7 MiB      0.1 MiB        1003           categories = [s.strip() for s in f.readlines()]
+    57                                         
+    58    292.9 MiB      0.1 MiB           1       top5_prob, top5_catid = torch.topk(probabilities, 5)
+    59    292.9 MiB      0.0 MiB           1       result = []
+    60    292.9 MiB      0.0 MiB           6       for i in range(top5_prob.size(0)):
+    61    292.9 MiB      0.0 MiB           5           result.append((i+1, categories[top5_catid[i]], round(top5_prob[i].item() * 100, 2)))
+    62    292.9 MiB      0.0 MiB           1       return result
+
+
+[(1, 'goose', 62.15), (2, 'albatross', 18.2), (3, 'ptarmigan', 10.37), (4, 'sulphur-crested cockatoo', 5.57), (5, 'crane', 1.75)]

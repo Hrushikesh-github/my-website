@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>About Page</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+    />
+    <style>
+      footer {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        background-color: #f8f9fa;
+        padding: 10px 0;
+      }
+    </style>
+  </head>
+  <body>
+    {% include 'navbar.html' %}
+    <div class="container mt-4">
+      <h2>About Me</h2>
+      <p>
+        Hi, I'm Hrushikesh.
+        <br />
+        I am working as a Data Scientist at Aidash, where I create, deploy
+        computer vision and ML models on geospatial data.
+        <br />
+        I graduated from IIT Guwahati.
+      </p>
+      <p>My Tech Stack includes:</p>
+      <ul>
+        <li>FastAPI</li>
+        <li>PyTorch</li>
+        <li>SQLAlchemy</li>
+        <li>Postgres</li>
+        <li>Docker</li>
+        <li>TensorFlow</li>
+        <li>MLflow</li>
+        <li>Metaflow</li>
+        <li>Rasterio</li>
+        <li>AWS tech Stack: Lambda, EC2, ECR, boto3, EKS</li>
+        <li>Nginx</li>
+        <li>CICD</li>
+        <li>Terraform</li>
+        <li>ROS</li>
+        <li>Apache Airflow</li>
+        <li>Node.js</li>
+      </ul>
+      <p>Feel free to reach out to me:</p>
+      <ul>
+        <li>Email: hrushi.chess@gmail.com</li>
+        <li>
+          <a href="https://www.linkedin.com/in/hrushikesh-kyathari-964360175/"
+            >LinkedIn</a
+          >
+        </li>
+      </ul>
+    </div>
+
+    <footer class="mt-5 text-center">
+      <p>
+        <a href="/image_classify">Try Image Classification</a>
+        <br />
+        <a href="/adversarial">Check out Adversarial Image Generation</a>
+        <br />
+        Number of images evaluated so far: {{ visits }}
+      </p>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/js/bootstrap.min.js"></script>
+  </body>
+</html>

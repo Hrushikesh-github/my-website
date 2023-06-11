@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Upload Image</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <style>
+      body {
+        background-color: #f8f9fa;
+        padding: 20px;
+      }
+
+      .uploaded-image {
+        max-width: 100%;
+        height: auto;
+      }
+      footer {
+  background-color: #f8f9fa;
+  padding: 10px 0;
+  text-align: center;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  border-top: 1px solid #e9ecef;
+  line-height: 0.8; /* Adjust the line height as needed */
+}
+
+footer p {
+  margin-bottom: 0;
+}
+
+footer a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      // Function to update the file name in the text bar
+      function updateFileName() {
+        var input = document.getElementById('imageUpload')
+        var output = document.getElementById('fileLabel')
+        output.innerHTML = input.files[0].name
+      }
+    </script>
+  </head>
+  <body>
+       {% include 'navbar.html' %}
+
+    <div class="container">
+      <h1>Upload Image</h1>
+      <div class="mb-3">
+        <form
+          action="/process_adversarial_image"
+          method="post"
+          enctype="multipart/form-data"
+        >
+          <div class="custom-file">
+            <input
+              type="file"
+              class="custom-file-input"
+              id="imageUpload"
+              name="image"
+              accept="image/*"
+              onchange="updateFileName()"
+            />
+            <label class="custom-file-label" for="imageUpload" id="fileLabel"
+              >Choose file</label
+            >
+          </div>
+          <button type="submit" class="btn btn-primary mt-3">Upload</button>
+        </form>
+      </div>
+
+      
+    {% if image_urls %}
+    <figure>
+    <img
+      src="{{ image_urls.stacked_image_url }}"
+      alt="Uploaded Image"
+      class="uploaded-image"
+    >
+     <figcaption style="text-align: center;">On Left: Original image uploaded.      On Right: Adversarial Image</figcaption>
+    </figure>
+    {% endif %}
+    <div>
+      {% if image_urls %}
+      <h2>Probability distribution on images</h2>
+      <figure>
+      <canvas id="combinedChart"></canvas>
+<figcaption style="text-align: center; margin-top: 10px;">Probability Distribution: Original Image vs Adversarial Image</figcaption>
+</figure>
+      <script>
+  // Retrieve the inference_result and adversarial_inference_result from the server
+  const inferenceResult = {{ inference_result | tojson }};
+  const adversarialInferenceResult = {{ adversarial_inference_result | tojson }};
+
+  // Combine the labels and probabilities from both results
+  const combinedLabels = [];
+  const combinedProbabilities = [];
+
+  // Get the maximum length of the two result arrays
+  const maxLength = Math.max(inferenceResult.length, adversarialInferenceResult.length);
+
+  // Alternate the display of labels and probabilities
+  for (let i = 0; i < maxLength; i++) {
+    if (i < inferenceResult.length) {
+      combinedLabels.push(inferenceResult[i][1]);
+      combinedProbabilities.push(inferenceResult[i][2]);
+    }
+    if (i < adversarialInferenceResult.length) {
+      combinedLabels.push(adversarialInferenceResult[i][1]);
+      combinedProbabilities.push(adversarialInferenceResult[i][2]);
+    }
+  }
+
+  const combinedCtx = document.getElementById('combinedChart').getContext('2d');
+  new Chart(combinedCtx, {
+    type: 'bar',
+    data: {
+      labels: combinedLabels,
+      datasets: [{
+        label: 'Probabilities',
+        data: combinedProbabilities,
+        backgroundColor: [
+          //'rgba(75, 192, 192, 0.8)', // Original image color
+          'rgba(112, 238, 27, 1)', // Original image color
+          //'rgba(255, 99, 132, 0.8)' // Adversarial image color
+          'rgba(238, 27, 82, 1)' // Adversarial image color
+        ]
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100,
+          title: {
+            display: true,
+            text: 'Probability (%)'
+          }
+        }
+      }
+    }
+  });
+</script>
+    <p>
+The chart displays the probability distribution of predicted classes for both the original image (green bars) and the adversarial image (red bars).
+<br>
+<br>
+
+The top 5 predictions are shown on the chart.If the actual class of the image is among the top 5 predictions for the adversarial image, we can consider it as a correct prediction from a <a
+            href="https://medium.com/@pavan.mksolution/deep-learning-literature-rank-1-rank-5-accuracies-22cb649be6b6"
+            >top 5 accuracy</a
+          >  perspective. 
+
+<br>
+<br>
+
+We observe a change in the probability distribution between the original and adversarial images, indicating how adversarial perturbations affect the model's predictions.
+
+</p>
+      {% endif %}
+    </div>
+    <div style="text-align: center;">
+      {% if image_urls %}
+      <h2>Perturbation</h2>
+      <figure style="display: inline-block;">
+      <img
+        src="{{ image_urls.perturbation_image_url }}"
+        alt="Uploaded Image"
+        class="uploaded-image"
+      >
+        <figcaption style="text-align: center;">Perturbation added to image to form the adversarial image</figcaption>
+      </figure>
+      <p>
+       By adding the above carefully crafted perturbation to the original image we are completely changing the output of the imagenet model.
+       <br>
+       The above displayed image is the original perturbation multipled by 50. Perturbation multipled by a factor is displayed instead of original perturbation as the original perturbation usually has very less max value and the image can appear to be completely black while that is not the case.
+
+      </p>
+      
+
+      <p>
+       Adversarial Attack used is FGSM with epsilon value of 24/255, relatively large value for better visualization. 
+       <br>
+       Imagenet Model used is Squeezenet which takes only 4.5 MB memory space and is effective in reducing resources and cost.
+      </p>
+      {% endif %}
+      </div>
+      <footer>
+             <p><a href="/image_classify">Try Image Classification</a>
+            <br>
+            <br>
+            Number of images evaluated so far: {{ visits }}
+            </p>
+      </footer>
+  </body>
+</html>

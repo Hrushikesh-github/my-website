@@ -1,0 +1,4 @@
+visualize.ipynb
+.ipynb_checkpoints/
+*.dat
+*.pyc

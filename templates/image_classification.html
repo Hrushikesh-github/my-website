@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Upload Image</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <style>
+      body {
+        background-color: #f8f9fa;
+        padding: 20px;
+      }
+
+      .uploaded-image {
+        max-width: 100%;
+        height: auto;
+      }
+      footer {
+        background-color: #f8f9fa;
+        padding: 10px 0;
+        text-align: center;
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        border-top: 1px solid #e9ecef;
+        line-height: 0.8; /* Adjust the line height as needed */
+      }
+
+      footer p {
+        margin-bottom: 0;
+      }
+
+      footer a {
+        color: #007bff;
+        text-decoration: none;
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      // Function to update the file name in the text bar
+      function updateFileName() {
+        var input = document.getElementById('imageUpload')
+        var output = document.getElementById('fileLabel')
+        output.innerHTML = input.files[0].name
+      }
+    </script>
+  </head>
+  <body>
+    {% include 'navbar.html' %}
+    <div class="container">
+      <h1>Upload Image</h1>
+      <div class="mb-3">
+        <form
+          action="/process_image"
+          method="post"
+          enctype="multipart/form-data"
+        >
+          <div class="custom-file">
+            <input
+              type="file"
+              class="custom-file-input"
+              id="imageUpload"
+              name="image"
+              accept="image/*"
+              onchange="updateFileName()"
+            />
+            <label class="custom-file-label" for="imageUpload" id="fileLabel"
+              >Choose file</label
+            >
+          </div>
+          <button type="submit" class="btn btn-primary mt-3">Upload</button>
+        </form>
+      </div>
+      <div>
+        <h2>Uploaded Image:</h2>
+        {% if image_url %}
+        <img
+          src="{{ image_url }}"
+          alt="Uploaded Image"
+          class="uploaded-image"
+        />
+        {% endif %}
+      </div>
+      {% if inference_result %}
+      <div>
+        <br />
+        <p>The top 5 predictions of the ImageNet model are:</p>
+        <ul>
+          {% for prediction in inference_result[:5] %}
+          <li>{{ prediction[1] }} with confidence {{ prediction[2] }} %</li>
+          {% endfor %}
+        </ul>
+        <br />
+        <p>
+          If there is a correct prediction in the top 5 predictions, then our
+          model has correctly predicted the image. This is also known as a
+          <a
+            href="https://medium.com/@pavan.mksolution/deep-learning-literature-rank-1-rank-5-accuracies-22cb649be6b6"
+            >Rank-5 prediction</a
+          >.
+        </p>
+        <canvas id="chart"></canvas>
+      </div>
+      <script>
+        const inferenceResult = {{ inference_result | tojson }};
+        const labels = inferenceResult.map((item) => item[1]);
+        const probabilities = inferenceResult.map((item) => item[2]);
+        const ctx = document.getElementById('chart').getContext('2d');
+        new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: 'Probabilities',
+                data: probabilities,
+                backgroundColor: 'rgba(75, 192, 192, 0.8)',
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: 100,
+                title: {
+                  display: true,
+                  text: 'Probability (%)',
+                },
+              },
+            },
+          },
+        });
+      </script>
+      {% endif %}
+    </div>
+
+    <footer class="mt-5 text-center">
+      <p>
+        <a href="/adversarial">Check out Adversarial Image Generation</a>
+        <br />
+        <br />
+        Number of images evaluated so far: {{ visits }}
+      </p>
+    </footer>
+  </body>
+</html>
