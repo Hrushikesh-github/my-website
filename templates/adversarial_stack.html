@@ -47,6 +47,17 @@ footer a {
         output.innerHTML = input.files[0].name
       }
     </script>
+    <script>
+      // Function to validate the form before submission
+      function validateForm() {
+        var input = document.getElementById('imageUpload')
+        if (input.files.length === 0) {
+          alert('Please upload an image.')
+          return false
+        }
+        return true
+      }
+    </script>
   </head>
   <body>
        {% include 'navbar.html' %}
@@ -58,6 +69,7 @@ footer a {
           action="/process_adversarial_image"
           method="post"
           enctype="multipart/form-data"
+          onsubmit="return validateForm();"
         >
           <div class="custom-file">
             <input
@@ -67,6 +79,7 @@ footer a {
               name="image"
               accept="image/*"
               onchange="updateFileName()"
+              required
             />
             <label class="custom-file-label" for="imageUpload" id="fileLabel"
               >Choose file</label
