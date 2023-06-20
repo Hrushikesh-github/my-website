@@ -6,7 +6,8 @@ from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 import os
 import warnings
-
+import sys
+sys.path.append('/apps/my-website')
 # Suppress the RuntimeWarning
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
@@ -54,8 +55,8 @@ def delete_files_in_directory(directory_path):
             # Delete the file
             os.remove(file_path)
 
-
-with open("imagenet_classes.txt", "r") as f:
+# with open("imagenet_classes.txt", "r") as f:
+with open("/apps/my_website/imagenet_classes.txt", "r") as f:
         categories = [s.strip() for s in f.readlines()]
 
 
@@ -102,6 +103,28 @@ def get_top5_class_probabilities(adversarial_probabilities, original_result):
         top5_class_probabilities.append((i + 1, class_name, round(probability.item() * 100, 1)))
 
     return top5_class_probabilities
+
+def get_perturbation_adv_img(input_image, perturbation):
+    '''
+    input_image: A PIL image of size 512, 512
+    perturbation: perturbation = epsilon * torch.sign(data_grad)
+    perturbation is of type torch.Tensor of size 224, 224
+    with values from -epsilon to +epsilon
+    '''
+    resized_input = input_image.resize((224, 224))
+    perturbation_arr = perturbation.squeeze().permute(1, 2, 0).detach().numpy()
+    resized_input_arr = np.array(resized_input)
+    adversarial_image_array = resized_input_arr.astype(np.float16) + perturbation_arr.astype(np.float16)
+    adversarial_image_array_clip = np.clip(adversarial_image_array, 0, 255)
+    # adversarial_image = Image.fromarray(adversarial_image_array_clip, mode='RGB')
+    adversarial_image = Image.fromarray(adversarial_image_array_clip.astype(np.uint8), mode='RGB')
+    adversarial_image = adversarial_image.resize((512, 512))
+    # display(input_image)
+    # display(adversarial_image)
+    multipled_perturbation_arr = (perturbation_arr * 255 * 50).astype(np.uint8)
+    multipled_perturbation = Image.fromarray(np.abs(multipled_perturbation_arr), mode='RGB')
+    multipled_perturbation = multipled_perturbation.resize((512, 512))
+    return adversarial_image, multipled_perturbation
 
 
 def get_inference_result(input_image: Image.Image) -> list:
@@ -155,28 +178,22 @@ def get_adversarial_result(input_image, image_filename):
 
     adversarial_top5_class_probabilities = get_top5_class_probabilities(adversarial_probabilities, original_result)
 
-    
-    perturbation = perturbation.squeeze().permute(1, 2, 0).detach().numpy()
-    multipled_perturbation = Image.fromarray((perturbation * 255 * 50).astype(np.uint8), mode='RGB')
+    adversarial_image, multipled_perturbation = get_perturbation_adv_img(input_image, perturbation)
+    '''    
+    perturbation_arr = perturbation.squeeze().permute(1, 2, 0).detach().numpy()
+    multipled_perturbation_arr = (perturbation_arr * 255 * 50).astype(np.uint8)
+    multipled_perturbation = Image.fromarray(multipled_perturbation_arr, mode='RGB')
     multipled_perturbation = multipled_perturbation.resize((512, 512))
     normal_perturbation = Image.fromarray((perturbation * 255).astype(np.uint8), mode='RGB')
 
     resized_perturbation = normal_perturbation.resize(input_image.size)
 
-    # We can directly add using Pillow
-    
-    #resized_perturbation_rgb = resized_perturbation.convert("RGB")
-    #input_image_rgb = input_image.convert("RGB")
-    #adversarial_image = Image.blend(resized_perturbation_rgb, input_image_rgb, alpha=0.5)
-
-    # OR WE CAN CONVERT TO NUMPY TO GET BETTER ADDITION
-    # Convert images to NumPy arrays and perform addition of the two arrays
     adversarial_image_array = np.array(resized_perturbation).astype(np.uint16) + np.array(input_image).astype(np.uint16)
     # Ensure the resulting array is within the valid range [0, 255]
     adversarial_image_array = np.clip(adversarial_image_array, 0, 255)
     # Convert the adversarial_image_array  back to PIL.Image.Image
     adversarial_image = Image.fromarray(adversarial_image_array.astype(np.uint8))
-
+    '''
     # Create a new blank image with the stacked dimensions
     stacked_width = input_image.width + adversarial_image.width + 1  # Add 1 pixel for the boundary
     stacked_height = max(input_image.height, adversarial_image.height)
@@ -194,7 +211,7 @@ def get_adversarial_result(input_image, image_filename):
     line_draw.line(line_coordinates, fill=boundary_color, width=boundary_width)
 
     # Add labels to the images
-    label_font = ImageFont.truetype("Arial.ttf", size=24)  # Set the font and size for the labels
+    label_font = ImageFont.load_default()
     label_draw = ImageDraw.Draw(stacked_image)
 
     # Add label for the original image

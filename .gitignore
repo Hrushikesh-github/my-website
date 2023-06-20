@@ -2,3 +2,6 @@ visualize.ipynb
 .ipynb_checkpoints/
 *.dat
 *.pyc
+*.ipynb
+/static
+visits_db.txt
