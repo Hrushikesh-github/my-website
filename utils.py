@@ -6,6 +6,8 @@ from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 import os
 import warnings
+from newspaper import Article
+import nltk
 import sys
 sys.path.append('/apps/my-website')
 # Suppress the RuntimeWarning
@@ -56,8 +58,15 @@ def delete_files_in_directory(directory_path):
             os.remove(file_path)
 
 # with open("imagenet_classes.txt", "r") as f:
-with open("/apps/my_website/imagenet_classes.txt", "r") as f:
-        categories = [s.strip() for s in f.readlines()]
+# Get the directory path of the current file
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Construct the file path relative to the current file's directory
+file_path = os.path.join(current_dir, "imagenet_classes.txt")
+
+# Open the file
+with open(file_path, "r") as f:
+    categories = [s.strip() for s in f.readlines()]
 
 
 def preprocess_image(input_image):
@@ -238,3 +247,32 @@ def get_adversarial_result(input_image, image_filename):
 
 
     return original_result, adversarial_result, adversarial_top5_class_probabilities
+
+
+
+def generate_summary(url: str) -> str:
+    # print("INSIDE SUMMARY")
+    article = Article(url)
+    article.download()
+    article.parse()
+    # print(article.authors, type(article.authors))
+    if not article.authors:
+        article.authors = ''
+    if not article.publish_date:
+        article.publish_date = ''
+    # print(article.publish_date, type(article.publish_date))
+    # print(article.top_image, type(article.top_image))
+    try:
+        nltk.data.find("tokenizers/punkt")
+    except LookupError:
+        nltk.download("punkt")
+    finally:
+        article.nlp()
+    # return article.summary
+    return {"Authors": article.authors, 
+            "Date": article.publish_date, 
+            "Image": article.top_image, 
+            "Summary": article.summary
+    }
+
+

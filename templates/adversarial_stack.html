@@ -17,16 +17,27 @@
         height: auto;
       }
       footer {
-  background-color: #f8f9fa;
-  padding: 10px 0;
-  text-align: center;
-  position: fixed;
-  left: 0;
-  bottom: 0;
-  width: 100%;
-  border-top: 1px solid #e9ecef;
-  line-height: 0.8; /* Adjust the line height as needed */
-}
+        background-color: #f6ab51;
+        padding: 10px 0;
+        text-align: center;
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        border-top: 1px solid #e9ecef;
+        line-height: 0.8; /* Adjust the line height as needed */
+      }
+      footer {
+        background-color: #f6ab51;
+        padding: 10px 0;
+        text-align: center;
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        border-top: 1px solid #e9ecef;
+        line-height: 0.8; /* Adjust the line height as needed */
+      }
 
 footer p {
   margin-bottom: 0;
@@ -207,16 +218,13 @@ We observe a change in the probability distribution between the original and adv
       <p>
        Adversarial Attack used is FGSM with epsilon value of 24/255, relatively large value for better visualization. 
        <br>
-       Imagenet Model used is Squeezenet which takes only 4.5 MB memory space and is effective in reducing resources and cost.
+       Imagenet Model used is Squeezenet which takes only 4.5 MB memory space and is effective in reducing resources and cost. 
       </p>
       {% endif %}
+      <br>
       </div>
-      <footer>
-             <p><a href="/image_classify">Try Image Classification</a>
-            <br>
-            <br>
-            Number of images evaluated so far: {{ visits }}
-            </p>
-      </footer>
+    <footer class="mt-5 text-center">
+      <p>Number of images and articles evaluated so far: {{ visits }}</p>
+    </footer>
   </body>
 </html>

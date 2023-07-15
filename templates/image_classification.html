@@ -17,15 +17,15 @@
         height: auto;
       }
       footer {
-        background-color: #f8f9fa;
-        padding: 10px 0;
+        background-color: #f6ab51;
+        padding: 5px 0;
         text-align: center;
         position: fixed;
         left: 0;
         bottom: 0;
         width: 100%;
-        border-top: 1px solid #e9ecef;
-        line-height: 0.8; /* Adjust the line height as needed */
+        line-height: 1.2; /* Adjust the line height as needed */
+        height: 30px; /* Adjust the height as needed */
       }
 
       footer p {
@@ -87,8 +87,8 @@
         </form>
       </div>
       <div>
-        <h2>Uploaded Image:</h2>
         {% if image_url %}
+        <h2>Uploaded Image:</h2>
         <img
           src="{{ image_url }}"
           alt="Uploaded Image"
@@ -149,15 +149,14 @@
         });
       </script>
       {% endif %}
+      <p>
+        <br />
+        <br />
+      </p>
     </div>
 
     <footer class="mt-5 text-center">
-      <p>
-        <a href="/adversarial">Check out Adversarial Image Generation</a>
-        <br />
-        <br />
-        Number of images evaluated so far: {{ visits }}
-      </p>
+      <p>Number of images and articles evaluated so far: {{ visits }}</p>
     </footer>
   </body>
 </html>

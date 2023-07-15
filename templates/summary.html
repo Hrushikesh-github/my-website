@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Article Summary</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <style>
+      body {
+        background-color: #f8f9fa;
+        padding: 20px;
+      }
+      footer {
+        background-color: #f6ab51;
+        padding: 10px 0;
+        text-align: center;
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        border-top: 1px solid #e9ecef;
+        line-height: 0.8; /* Adjust the line height as needed */
+      }
+
+      footer p {
+        margin-bottom: 0;
+      }
+
+      footer a {
+        color: #007bff;
+        text-decoration: none;
+      }
+
+      /* Loading animation */
+      .lds-ring {
+        display: inline-block;
+        position: relative;
+        width: 80px;
+        height: 80px;
+      }
+      .lds-ring div {
+        box-sizing: border-box;
+        display: block;
+        position: absolute;
+        width: 64px;
+        height: 64px;
+        margin: 8px;
+        border: 8px solid #007bff;
+        border-radius: 50%;
+        animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+        border-color: #007bff transparent transparent transparent;
+      }
+      .lds-ring div:nth-child(1) {
+        animation-delay: -0.45s;
+      }
+      .lds-ring div:nth-child(2) {
+        animation-delay: -0.3s;
+      }
+      .lds-ring div:nth-child(3) {
+        animation-delay: -0.15s;
+      }
+      @keyframes lds-ring {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+    <script>
+      // Function to display the loading animation
+      function showLoadingAnimation() {
+        var loader = document.getElementById('loader')
+        loader.style.display = 'block'
+      }
+    </script>
+  </head>
+  <body>
+    {% include 'navbar.html' %}
+    <div class="container">
+      <h1>Article Summary</h1>
+      <div class="mb-3">
+        <form
+          action="/post_get_summary"
+          method="post"
+          onsubmit="showLoadingAnimation()"
+        >
+          <div class="form-group">
+            <label for="urlInput">Enter URL:</label>
+            <input
+              type="text"
+              class="form-control"
+              id="urlInput"
+              name="url"
+              required
+              value="{{ request.form.url if request.form.url else '' }}"
+            />
+          </div>
+          <button type="submit" class="btn btn-primary mt-3">Submit</button>
+        </form>
+      </div>
+      <div id="loader" class="lds-ring" style="display: none">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+      {% if article_info %}
+      <div>
+        <h2>Article Information:</h2>
+        <div class="row">
+          <div class="col-md-4 image-container">
+            {% if article_info.Image %}
+            <img
+              src="{{ article_info.Image }}"
+              alt="Article Image"
+              class="img-fluid"
+            />
+            {% endif %}
+          </div>
+          <div class="col-md-8 summary-container">
+            <p><strong>URL:</strong> <a href="{{ url }}">{{ url }}</a></p>
+            <p><strong>Summary:</strong> {{ article_info.Summary }}</p>
+          </div>
+        </div>
+      </div>
+      {% else %}
+      <div>
+        <p>
+          You can try one of the following example URLs, simply copy-paste them
+          above:
+        </p>
+        <ul>
+          <li>
+            <a
+              href="https://www.nationalgeographic.com/premium/article/rome-last-kings-etruscan-revolution"
+            >
+              https://www.nationalgeographic.com/premium/article/rome-last-kings-etruscan-revolution
+            </a>
+          </li>
+          <li>
+            <a
+              href="https://www.foxnews.com/us/us-lawmakers-introduce-new-bill-protect-tiktok-user-information"
+            >
+              https://www.foxnews.com/us/us-lawmakers-introduce-new-bill-protect-tiktok-user-information
+            </a>
+          </li>
+          <li>
+            <a
+              href="https://alexeiarora.substack.com/p/why-do-american-elites-love-wokeness?utm_source=profile&utm_medium=reader2"
+            >
+              https://alexeiarora.substack.com/p/why-do-american-elites-love-wokeness?utm_source=profile&utm_medium=reader2
+            </a>
+          </li>
+        </ul>
+      </div>
+      {% endif %}
+    </div>
+
+    <footer class="mt-5 text-center">
+      <p>Number of images and articles evaluated so far: {{ visits }}</p>
+    </footer>
+  </body>
+</html>

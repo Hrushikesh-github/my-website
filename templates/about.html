@@ -8,11 +8,15 @@
     />
     <style>
       footer {
+        background-color: #f6ab51;
+        padding: 5px 0;
+        text-align: center;
         position: fixed;
+        left: 0;
         bottom: 0;
         width: 100%;
-        background-color: #f8f9fa;
-        padding: 10px 0;
+        line-height: 1.2; /* Adjust the line height as needed */
+        height: 30px; /* Adjust the height as needed */
       }
     </style>
   </head>
@@ -21,14 +25,14 @@
     <div class="container mt-4">
       <h2>About Me</h2>
       <p>
-        Hi, I'm Hrushikesh.
+        I'm Hrushikesh!
         <br />
-        I am working as a Data Scientist at Aidash, where I create, deploy
+        Currently working as a Data Scientist at Aidash, where I create, deploy
         computer vision and ML models on geospatial data.
         <br />
         I graduated from IIT Guwahati.
       </p>
-      <p>My Tech Stack includes:</p>
+      <p>My Tech Stack includes (in no proper order):</p>
       <ul>
         <li>FastAPI</li>
         <li>PyTorch</li>
@@ -39,9 +43,10 @@
         <li>MLflow</li>
         <li>Metaflow</li>
         <li>Rasterio</li>
-        <li>AWS tech Stack: Lambda, EC2, ECR, boto3, EKS</li>
+        <li>Pytest</li>
+        <li>AWS tech Stack: Lambda, EC2, ECR, boto3, EKS, LightSail</li>
         <li>Nginx</li>
-        <li>CICD</li>
+        <li>CICD - Github Actions</li>
         <li>Terraform</li>
         <li>ROS</li>
         <li>Apache Airflow</li>
@@ -59,13 +64,7 @@
     </div>
 
     <footer class="mt-5 text-center">
-      <p>
-        <a href="/image_classify">Try Image Classification</a>
-        <br />
-        <a href="/adversarial">Check out Adversarial Image Generation</a>
-        <br />
-        Number of images evaluated so far: {{ visits }}
-      </p>
+      Number of images evaluated so far: {{ visits }}
     </footer>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
