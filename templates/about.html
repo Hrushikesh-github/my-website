@@ -7,23 +7,15 @@
       href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
     />
     <style>
-      footer {
-        background-color: #f6ab51;
-        padding: 5px 0;
-        text-align: center;
-        position: fixed;
-        left: 0;
-        bottom: 0;
-        width: 100%;
-        line-height: 1.2; /* Adjust the line height as needed */
-        height: 30px; /* Adjust the height as needed */
+      .tech-stack {
+        column-count: 2;
       }
     </style>
   </head>
   <body>
     {% include 'navbar.html' %}
     <div class="container mt-4">
-      <h2>About Me</h2>
+      <h3>About Me</h3>
       <p>
         I'm Hrushikesh!
         <br />
@@ -32,7 +24,134 @@
         <br />
         I graduated from IIT Guwahati.
       </p>
-      <p>My Tech Stack includes (in no proper order):</p>
+      <div>
+        <h3>Research</h3>
+        <p>
+          My Research work in collaboration with
+          <a
+            href="https://github.com/Hrushikesh-github/Batchout-Robustness-method"
+          >
+            Prof.Konda Reddy</a
+          >
+          was on Adversarial Robustness of Deep Neural Networks.
+          <br />
+          Current
+          <a href="https://github.com/fra31/auto-attack#cifar-10---linf"
+            >SOTA</a
+          >
+          on Robustness relies on Adversarial Training along with additional
+          Parametrization and Regularization, which causes a huge increase in
+          time to train compared to standard training. Our aim was to make a DNN
+          robust without the additional time overbound of Adversarial Training.
+          For this, we performed feature space perturbation, training models on
+          a convex combination of different images on a particular feature space
+          or set of feature space. This happens on the fly, hence takes the same
+          time as normal training. Using this method, we achieved an accuracy of
+          32.37% on VGG19 with a PGD (200 steps, CIFAR10-Linf) attack, which is
+          close to the accuracy obtained by Adversarial Training. However, the
+          approach did not generalize to ResNet and DenseNet, with the most
+          likely explanation of Residual additionals altering the convex
+          combination in later layers.
+          <br />
+          <br />
+          On a hindsight, I strongly feel Adversarial Robustness is an extremely
+          challenging and a major setback for trustability to A.I. The huge
+          dimensional space (for CIFAR 10 it is 32 * 32 * 3 = 3072) makes
+          ConvNets highly susceptible and easy to manipulate. Refer this
+          excellent paper
+          <a href="https://arxiv.org/abs/1704.03453">Florian Et Al</a>
+          with a major finding that adversarial examples span a contiguous
+          subspace of large (~25) dimensionality (This finding is for MNIST
+          which has small subspace compared to CIFAR10 of 28 * 28 * 1 = 784)
+        </p>
+      </div>
+
+      <div class="OTHER WORKS">
+        <h3>Check out my other works:</h3>
+
+        <div class="">
+          <h6>Deep Learning and Computer Vision</h6>
+          <ul>
+            <li>
+              <a
+                href="https://github.com/Hrushikesh-github/Face-Analysis-using-deep-learning"
+                >Face analysis with deep learning</a
+              >
+            </li>
+            <li>
+              <a
+                href="https://github.com/Hrushikesh-github/Image-Orientation-correction"
+                >Image Orientation Correction pipeline</a
+              >
+            </li>
+            <li>
+              <a
+                href="https://github.com/Hrushikesh-github/Custom-Motion-Detector"
+                >Custom Motion Detector</a
+              >
+            </li>
+          </ul>
+          <h6>Reinforcement Learning</h6>
+          <ul>
+            <li>
+              <a href="https://github.com/Hrushikesh-github/RL-algorithms"
+                >Various RL Algorithms implementation</a
+              >
+            </li>
+            <li>
+              <a href="https://github.com/Hrushikesh-github/DQN-and-Extensions"
+                >Solving Pong, an atari game</a
+              >
+            </li>
+          </ul>
+          <h6>Robotics</h6>
+          <ul>
+            <li>
+              <a
+                href="https://github.com/Hrushikesh-github/Mobile-Manipulation-of-YouBot/tree/master"
+                >Mobile Manipulation of youBot</a
+              >
+            </li>
+            <li>
+              <a href="https://github.com/Hrushikesh-github/ROS-Navigation"
+                >Navigation Stack on ROS (Map Creation, Localization, Cost
+                Planning)</a
+              >
+            </li>
+            <li>
+              <a href="https://github.com/Hrushikesh-github/URDF-TF-ROS_Control"
+                >Ros Control and URDF</a
+              >
+            </li>
+            <li>
+              <a
+                href="https://github.com/Hrushikesh-github/ROS-Actions_Services_topics"
+                >ROS Actions and Services</a
+              >
+            </li>
+            <li>
+              <a href="https://github.com/Hrushikesh-github/ROS-Manipulation"
+                >ROS Manipulation</a
+              >
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h3>Contact Information</h3>
+          <ul>
+            <li>Email: hrushi.chess@gmail.com</li>
+            <li>
+              <a
+                href="https://www.linkedin.com/in/hrushikesh-kyathari-964360175/"
+                >LinkedIn</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+
+<div class="tech-stack">
+  <h3>My Tech Stack</h3>
       <ul>
         <li>FastAPI</li>
         <li>PyTorch</li>
@@ -42,31 +161,18 @@
         <li>TensorFlow</li>
         <li>MLflow</li>
         <li>Metaflow</li>
+        <br>
         <li>Rasterio</li>
         <li>Pytest</li>
-        <li>AWS tech Stack: Lambda, EC2, ECR, boto3, EKS, LightSail</li>
+        <li>AWS tech Stack: Lambda, EC2, ECR, boto3, EKS, LightSail, RDS</li>
         <li>Nginx</li>
         <li>CICD - Github Actions</li>
         <li>Terraform</li>
         <li>ROS</li>
         <li>Apache Airflow</li>
         <li>Node.js</li>
-      </ul>
-      <p>Feel free to reach out to me:</p>
-      <ul>
-        <li>Email: hrushi.chess@gmail.com</li>
-        <li>
-          <a href="https://www.linkedin.com/in/hrushikesh-kyathari-964360175/"
-            >LinkedIn</a
-          >
-        </li>
-      </ul>
-    </div>
-
-    <footer class="mt-5 text-center">
-      Number of images evaluated so far: {{ visits }}
-    </footer>
-
+        </ul>
+</div>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/js/bootstrap.min.js"></script>
   </body>
