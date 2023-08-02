@@ -39,4 +39,4 @@ jobs:
           aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 714116641665.dkr.ecr.us-east-1.amazonaws.com
 
       - name: Push to the registry
-        run: docker push ${{env.ECR_REPO_NAME}}
+        run: docker push ${{env.ECR_REPO_NAME}}:from-git
