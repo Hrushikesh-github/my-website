@@ -60,10 +60,12 @@ async def process_image(request: Request, image: UploadFile = File(...)):
     image_url = request.url_for("static", path=f"uploads/{image.filename}")
     visits = increment_visit_count()
     task = simplee_task.delay()
+    task_id = str(task)
+    print("TASK_ID IS : ", task_id)
     print("RAN CELERY TASK!!")
     #return templates.TemplateResponse("upload_bootstap.html", {"request": request, "image_url": image_url, "inference_result": inference_result})
     # return templates.TemplateResponse("image_classification.html", {"request": request, "image_url": image_url, "inference_result": inference_result})
-    return templates.TemplateResponse("image_classification.html", {"request": request, "image_url": image_url, "inference_result": inference_result, "visits": visits})
+    return templates.TemplateResponse("image_classification.html", {"request": request, "image_url": image_url, "inference_result": inference_result, "task_id": task_id})
 
 @router.get("/adversarial")
 def upload_adversarial_page(request: Request):
@@ -136,11 +138,11 @@ async def old_obtain_summary(request: Request, url: str):
     # visits = get_counts()
     #return templates.TemplateResponse("home.html", {"request": request, "visits": visits})
 
-@router.get("/task_status/")
+@router.get("/task_status/{task_id}")
 def task_status(task_id: str):
     task = AsyncResult(task_id)
     state = task.state
-
+    print("THE STATE VALUE IS: ",state)
     if state == 'FAILURE':
         error = str(task.result)
         response = {
@@ -150,5 +152,6 @@ def task_status(task_id: str):
     else:
         response = {
             'state': state,
+            'result': task.result,  # Include the result in the response
         }
     return JSONResponse(response)

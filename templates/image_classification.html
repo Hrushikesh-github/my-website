@@ -57,6 +57,31 @@
         return true
       }
     </script>
+    <script>
+      function updateVisits() {
+        // Check if {{ task_id }} is defined and not empty
+        if ('{{ task_id }}') {
+          fetch('/task_status/' + '{{ task_id }}')
+            .then((response) => response.json())
+            .then((data) => {
+              const visitsElement = document.getElementById('visits')
+              if (data.state === 'SUCCESS') {
+                console.log(data.result)
+                visitsElement.textContent = data.result.visits
+              } else {
+                visitsElement.textContent = 'processing'
+                setTimeout(updateVisits, 2000) // Retry after 1 second
+              }
+            })
+            .catch((error) => {
+              console.error('Error fetching task status:', error)
+            })
+        }
+      }
+
+      // Start updating visits on page load
+      updateVisits()
+    </script>
   </head>
   <body>
     {% include 'navbar.html' %}
@@ -155,8 +180,18 @@
       </p>
     </div>
 
-    <footer class="mt-5 text-center">
+    <!-- <footer class="mt-5 text-center">
       <p>Number of images and articles evaluated so far: {{ visits }}</p>
+    </footer> -->
+    <footer class="mt-5 text-center">
+      {% if visits %}
+      <p>Number of images and articles evaluated so far: {{ visits }}</p>
+      {% else %}
+      <p>
+        Yooo of images and articles evaluated so far:
+        <span id="visits"></span>
+      </p>
+      {% endif %}
     </footer>
   </body>
 </html>

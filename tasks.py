@@ -41,6 +41,6 @@ def increment_visit_count():
 @shared_task
 def simplee_task():
     import time
-    time.sleep(5)
+    time.sleep(10)
     print("CEELRY TASK IS COMPLETED")
-    return "THIS IS OUTPUT OF SIMPLE TASK"
+    return {"visits": 4}
