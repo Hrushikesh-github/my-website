@@ -1,11 +1,12 @@
 from fastapi.templating import Jinja2Templates
 from fastapi import UploadFile, File, Request, APIRouter, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 import io
 import os
 from PIL import Image
 from utils import generate_summary, get_counts, get_inference_result, get_adversarial_result, increment_visit_count, delete_files_in_directory
-
+from celery.result import AsyncResult
+from tasks import simplee_task
 # Create an instance of the Jinja2Templates class
 templates = Jinja2Templates(directory="templates")
 
@@ -58,7 +59,10 @@ async def process_image(request: Request, image: UploadFile = File(...)):
     # Generate the URL for the uploaded image
     image_url = request.url_for("static", path=f"uploads/{image.filename}")
     visits = increment_visit_count()
+    task = simplee_task.delay()
+    print("RAN CELERY TASK!!")
     #return templates.TemplateResponse("upload_bootstap.html", {"request": request, "image_url": image_url, "inference_result": inference_result})
+    # return templates.TemplateResponse("image_classification.html", {"request": request, "image_url": image_url, "inference_result": inference_result})
     return templates.TemplateResponse("image_classification.html", {"request": request, "image_url": image_url, "inference_result": inference_result, "visits": visits})
 
 @router.get("/adversarial")
@@ -131,3 +135,20 @@ async def old_obtain_summary(request: Request, url: str):
     return output_dict
     # visits = get_counts()
     #return templates.TemplateResponse("home.html", {"request": request, "visits": visits})
+
+@router.get("/task_status/")
+def task_status(task_id: str):
+    task = AsyncResult(task_id)
+    state = task.state
+
+    if state == 'FAILURE':
+        error = str(task.result)
+        response = {
+            'state': state,
+            'error': error,
+        }
+    else:
+        response = {
+            'state': state,
+        }
+    return JSONResponse(response)
