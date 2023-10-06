@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Telugu Word API</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+    />
+    <style>
+        /* body {
+            font-size: 26px;
+        } */
+
+        .telugu {
+            font-size: 36px;
+        }
+
+        .meaning {
+            font-size: 36px;
+        }
+        input {
+    padding: 10px 20px;  /* Add 20px padding to the left and right */
+    font-size: 36px;  /* Increase font size */
+    line-height: 5.5;  /* Adjust line height for better vertical alignment */
+    height: 80px;  /* Increase height */
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    width: 50%;  /* Set the width of the input box to 50% of the container */
+}
+
+footer {
+    position:initial;
+    bottom: 0;
+    width: 100%;
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #f2f2f2;
+    text-align: center;
+}
+
+body {
+    font-size: 26px;
+}
+
+        footer {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f2f2f2;
+            text-align: center;
+        }
+    </style>
+
+</head>
+
+<body>
+    {% include 'navbar.html' %}
+    <h1>Telugu Word API</h1>
+    <label for="teluguWord">Enter a Telugu Word:</label>
+    <!-- <input type="text" id="teluguWord" class="telugu" /> -->
+    <input type="text" id="teluguWord" class="telugu" onkeyup="if(event.keyCode == 13) getWordOrPrefix();" />
+    <button onclick="getWordOrPrefix()">Get Meaning or Similar Words</button>
+    <div id="output"></div>
+
+    <p>
+        List of words you can try are అక్షరాలు ప్రస్తావించుట స్తోత్రము సలహా
+    </p>
+    <!-- <footer>
+   మీరు నిఘంటువులో ఉన్న ఒకే అక్షరాలు ఉన్న పదాన్ని ఇచ్చినప్పుడు, మీరు దాని అర్థాన్ని పొందుతారు, లేకపోతే మీరు సమాన ప్రారంభికాలను కలిగిన పదాలను పొందుతారు.
+ఇతర తెలుగు నిఘంటువు వెబ్సైట్లకంటే ఈ వెబ్సైట్ వేగవంతమైనది మరియు సౌకర్యవంతమైనది. మీరు విస్తృత అర్థాన్ని కావాలంటే అంధ్ర భారతిని ఉపయోగించాలని నేను సలహా ఇస్తున్నాను.
+దయచేసి hrushi.chess@gmail.com వద్ద సంప్రదించండి లింకెడ్ఇన్-లింక్ గిత్హబ్-లింక్
+
+
+        If you provide a word with same spelling present in dictionary you will get it's meaning otherwise you will get similar words with matching prefix.
+       This website is faster and convienient compared to other telugu dictionary websites such as andhra bharati. 
+       I would suggest using andhra bharati if you need a verbose meaning. 
+       Please get in touch at hrushi.chess@gmail.com linkedin-link github-link
+    </footer> -->
+
+    <script>
+        function getWordOrPrefix() {
+            const teluguWord = document.getElementById('teluguWord').value;
+            fetch(`https://nl5wni1g7c.execute-api.us-east-1.amazonaws.com/cors-enabled/telugu-words/?word=${teluguWord}`)
+                .then(response => response.json())
+                .then(data => {
+                    const outputDiv = document.getElementById('output');
+                    outputDiv.innerHTML = '';
+                    console.log(data)
+                    if (data['similar_words']) {
+                        const similarWords = data['similar_words'];
+                        const ul = document.createElement('ul');
+                        similarWords.forEach(word => {
+                            const li = document.createElement('li');
+                            const link = document.createElement('a');
+                            link.href = '#'; // Set the href to '#' to prevent navigating to a new page
+                            link.innerText = word;
+                            link.classList.add("telugu"); // Add the telugu class to the link
+                            link.addEventListener('click', () => getMeaningForWord(word)); // Add a click event listener
+                            li.appendChild(link);
+                            ul.appendChild(li);
+                        });
+                        outputDiv.appendChild(ul);
+                    } else if (data['Error']) {
+                        outputDiv.innerText = data['Error'];
+                    } else {
+                        const meanings = data[teluguWord];
+                        if (meanings && meanings.length > 0) {
+                            const ul = document.createElement('ul');
+                            meanings.forEach(meaning => {
+                                const li = document.createElement('li');
+                                li.innerText = meaning;
+                                li.classList.add("meaning"); // Add the meaning class to the <li> element
+                                ul.appendChild(li);
+                            });
+                            outputDiv.appendChild(ul);
+                        } else {
+                            outputDiv.innerText = 'No meanings or similar words found.';
+                        }
+                    }
+                })
+                .catch(error => console.error(error));
+        }
+
+        function getMeaningForWord(word) {
+            const inputBox = document.getElementById('teluguWord');
+            inputBox.value = word;
+            fetch(`https://nl5wni1g7c.execute-api.us-east-1.amazonaws.com/prod/telugu-words/?word=${word}`)
+                .then(response => response.json())
+                .then(meaning => {
+                    const outputDiv = document.getElementById('output');
+                    outputDiv.innerHTML = '';
+                    if (meaning && typeof meaning === 'object') {
+                        const ul = document.createElement('ul');
+                        Object.entries(meaning).forEach(([word, meanings]) => {
+                            const li = document.createElement('li');
+                            li.innerText = meanings.join(', ');  // Assuming meanings is an array of strings
+                            li.classList.add("meaning"); // Add the meaning class to the <li> element
+                            ul.appendChild(li);
+                        });
+                        outputDiv.appendChild(ul);
+                    } else {
+                        outputDiv.innerText = 'No meaning found for this word.';
+                    }
+                })
+                .catch(error => console.error(error));
+        }
+    </script>
+</body>
+
+</html>

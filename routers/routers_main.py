@@ -131,3 +131,8 @@ async def old_obtain_summary(request: Request, url: str):
     return output_dict
     # visits = get_counts()
     #return templates.TemplateResponse("home.html", {"request": request, "visits": visits})
+
+@router.get("/telugu_words", response_class=HTMLResponse)
+async def render_telugu_page(request: Request):
+    visits = get_counts()
+    return templates.TemplateResponse("telugu_words.html", {"request": request, "visits": visits})
