@@ -31,17 +31,17 @@
         margin-bottom: 20px;
       }
 
-  footer {
-    background-color: #f6ab51;
-    padding: 5px 0;
-    text-align: center;
-    position: fixed;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    line-height: 1.2; /* Adjust the line height as needed */
-    height: 30px; /* Adjust the height as needed */
-  }
+      footer {
+        background-color: #f6ab51;
+        padding: 5px 0;
+        text-align: center;
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        line-height: 1.2; /* Adjust the line height as needed */
+        height: 30px; /* Adjust the height as needed */
+      }
     </style>
   </head>
   <body>
@@ -88,6 +88,16 @@
             </div>
           </div>
         </div>
+
+        <div class="col-lg-4">
+          <div class="card mb-3">
+            <div class="card-body">
+              <h2 class="card-title">Telugu Dictionary</h2>
+              <p class="card-text">Get meanings for Telugu words</p>
+              <a href="/telugu_words" class="btn btn-primary">Visit</a>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -96,18 +106,16 @@
     <div style="margin: 0 auto; width: 800px;">
       <p>
         <ul>
-          <li>The website's backend is driven by FastAPI, and it is hosted within a container deployed on AWS AppRunner.
-        </li>
-          <li>The machine learning models are
-        developed using PyTorch.</li>
-          <li>Continuous
-        Integration and Continuous Deployment (CICD) processes are implemented
-        using Github Actions with AWS ECR as the container registry.</li>
+          <li>The website's backend is driven by FastAPI and is hosted as a container deployed on AWS AppRunner.
+          </li>
+          <li>The machine learning models are developed using PyTorch.
+          </li>
+          <li>Continuous Integration and Continuous Deployment (CICD) processes are implemented using Github Actions with AWS ECR as the container registry.
+          </li>
         </ul>
       </p>
       </div>
           <footer class="mt-5 text-center">
-
       <p>Number of images and articles evaluated so far: {{ visits }}</p>
     </footer>
   </body>
