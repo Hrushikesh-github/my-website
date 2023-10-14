@@ -18,7 +18,10 @@ router = APIRouter()
 @router.get("/", response_class=HTMLResponse)
 def home_page(request: Request):
     visits = get_counts()
-    return templates.TemplateResponse("home.html", {"request": request, "visits": visits})
+    # image_url = request.url_for("static", path=f"uploads/{image.filename}")
+    image_url_1 = request.url_for("static", path=f"website_flow.png")
+    image_url_2 = request.url_for("static", path=f"telugu_dictionary_flowchart.png")
+    return templates.TemplateResponse("home.html", {"request": request, "visits": visits, "image_1": image_url_1, "image_2": image_url_2})
 
 @router.get("/about", response_class=HTMLResponse)
 def about_page(request: Request):
