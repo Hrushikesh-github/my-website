@@ -2,8 +2,10 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from routers import routers_main
 import os
+from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 app = FastAPI()
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])
 
 os.makedirs("static/stacked", exist_ok=True)
 os.makedirs("static/perturbations", exist_ok=True)
