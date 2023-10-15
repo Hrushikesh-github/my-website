@@ -3,8 +3,11 @@ from fastapi.staticfiles import StaticFiles
 from routers import routers_main
 import os
 from fastapi import Request
+from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 
 app = FastAPI()
+
+app.add_middleware(HTTPSRedirectMiddleware)
 
 os.makedirs("static/stacked", exist_ok=True)
 os.makedirs("static/perturbations", exist_ok=True)
